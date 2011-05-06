@@ -110,10 +110,10 @@ protected:
 };
 
 #define METADECL(_type)             \
-  protected:                    \
+  protected:                        \
   virtual const char *getType()
 
-#define METAIMPL(_type)                 \
+#define METAIMPL(_type)                             \
   const char *_type::getType() { return # _type; }  \
   REGISTER(_type)
 
@@ -225,7 +225,7 @@ void Factory::writeObject(ostream &os, ObjectRoot *obj) {
   }
 }
 
-#define REGISTER(_type)                         \
+#define REGISTER(_type)                                                 \
   static ObjectRoot *_type ## FactoryCreator() { return new _type; };   \
   static int _type ## CreatorAutoRegHook = Factory::registerCreator(#_type, _type ## FactoryCreator)
 
@@ -378,12 +378,31 @@ int main(int argc, char *argv[]) {
   ifstream ifile("factory.dat");
   ObjectRoot *obj;
 
-  cout << "Reading:" << endl;
+  cout << "Reading data:" << endl;
   ifile >> obj;
 
-  cout << "Writing:" << endl;
+  cout << "Writing read data:" << endl;
   Factory::resetObjectCollection();
   cout << obj;
+
+  cout << "Creating data:" << endl;
+
+  MyClassTwo *mct1 = new MyClassTwo;
+  MyClassTwo *mct2 = new MyClassTwo;
+  MyClassTwo *mct3 = new MyClassTwo;
+
+  mct1->anObject = mct2;
+  mct1->aValue = 1;
+
+  mct2->anObject = mct3;
+  mct2->aValue = 2;
+
+  mct3->anObject = mct1; // this will create a circle, which this example can handle
+  mct3->aValue = 3;
+
+  cout << "Writing created data:" << endl;
+  Factory::resetObjectCollection();
+  cout << mct1;
 
   return 0;
 }
